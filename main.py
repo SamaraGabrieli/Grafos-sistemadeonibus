@@ -1,10 +1,9 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# Criando o grafo não direcionado
+# Criando o grafo
 G = nx.Graph()
 
-# Adicionando os vértices (locais)
 vertices = [
     "FIB",
     "Centro",
@@ -16,7 +15,7 @@ vertices = [
 
 G.add_nodes_from(vertices)
 
-# Adicionando as arestas ponderadas (tempo entre os locais)
+# Arestas com pesos
 G.add_edge("FIB", "Centro", weight=13)
 G.add_edge("Centro", "Boulevard", weight=9)
 
@@ -29,20 +28,47 @@ G.add_edge("Duque", "Boulevard", weight=11)
 G.add_edge("FIB", "Nuno", weight=16)
 G.add_edge("Nuno", "Boulevard", weight=12)
 
-# Posições manuais para o grafo ficar organizado
+# Posições
 pos = {
     "FIB": (0, 0),
-    "Centro": (3.5,3),
+    "Centro": (3.5, 3),
     "Confianca Castelo": (2, 1),
     "Duque": (3, -1),
     "Nuno": (3, -3),
     "Boulevard": (5, 0)
 }
 
-# Tamanho da janela
+# DIJKSTRA
+menor_caminho = nx.dijkstra_path(
+    G,
+    source="FIB",
+    target="Boulevard",
+    weight="weight"
+)
+
+# Transformar caminho em arestas
+arestas_dijkstra = list(zip(
+    menor_caminho,
+    menor_caminho[1:]
+))
+
+# BFS
+caminho_bfs = nx.shortest_path(
+    G,
+    source="FIB",
+    target="Boulevard"
+)
+
+arestas_bfs = list(zip(
+    caminho_bfs,
+    caminho_bfs[1:]
+))
+
+
+# DESENHO
 plt.figure(figsize=(10, 6))
 
-# Desenhar o grafo
+# Grafo base
 nx.draw(
     G,
     pos,
@@ -57,9 +83,10 @@ nx.draw(
         "khaki",
         "royalblue"
     ],
+    edge_color="gray"
 )
 
-# Mostrar pesos das arestas
+# Pesos
 labels = nx.get_edge_attributes(G, 'weight')
 
 nx.draw_networkx_edge_labels(
@@ -68,17 +95,31 @@ nx.draw_networkx_edge_labels(
     edge_labels=labels
 )
 
-# Mostrar gráfico
-plt.show()
-
-# Algoritmo de Dijkstra
-menor_caminho = nx.dijkstra_path(
+# Caminho do Dijkstra (VERMELHO)
+nx.draw_networkx_edges(
     G,
-    source="FIB",
-    target="Boulevard",
-    weight="weight"
+    pos,
+    edgelist=arestas_dijkstra,
+    edge_color='red',
+    width=2
 )
 
+# Caminho do BFS (VERDE)
+nx.draw_networkx_edges(
+    G,
+    pos,
+    edgelist=arestas_bfs,
+    edge_color='green',
+    width=2,
+    style='dashed'
+)
+
+plt.title("Comparação entre Dijkstra e BFS")
+
+plt.show()
+
+
+# Resultados
 menor_tempo = nx.dijkstra_path_length(
     G,
     source="FIB",
@@ -86,27 +127,9 @@ menor_tempo = nx.dijkstra_path_length(
     weight="weight"
 )
 
-# Exibir resultado
-print("Melhor rota:")
+print("Caminho usando Dijkstra:")
 print(" -> ".join(menor_caminho))
-
 print(f"Tempo total: {menor_tempo} minutos")
-
-
-#Aplicando o BFS para comparação
-caminho_bfs = nx.shortest_path(
-    G,
-    source="FIB",
-    target="Boulevard"
-)
 
 print("\nCaminho usando BFS:")
 print(" -> ".join(caminho_bfs))
-
-print("\nCaminho usando Dijkstra:")
-print(" -> ".join(menor_caminho))
-print(f"Tempo total: {menor_tempo} minutos")
-
-#Floyd-Warshall consegue ver o menor caminho entre todos os vertices
-fw = nx.floyd_warshall(G, weight='weight')
-print(fw["FIB"]["Boulevard"])
