@@ -1,5 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+
 
 # Criando o grafo
 G = nx.Graph()
@@ -115,6 +117,13 @@ nx.draw_networkx_edges(
 )
 
 plt.title("Comparação entre Dijkstra e BFS")
+
+legenda = [
+    Line2D([0], [0], color='red', lw=2, label='Dijkstra'),
+    Line2D([0], [0], color='green', lw=2, linestyle='dashed', label='BFS')
+]
+
+plt.legend(handles=legenda, loc='upper right')
 
 plt.show()
 
